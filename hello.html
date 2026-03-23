@@ -1,0 +1,525 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+  <meta charset="UTF-8"/>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>One Station — Custom ERP Development Indonesia</title>
+  <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@300;400;500;600;700;800&display=swap" rel="stylesheet"/>
+  <style>
+    :root {
+      --bg:      #09090F;
+      --surface: #0F0E1A;
+      --card:    #13111F;
+      --border:  rgba(139,120,255,0.12);
+      --purple:  #7C5CFC;
+      --blue:    #4F8EF7;
+      --grad:    linear-gradient(135deg, #7C5CFC, #4F8EF7);
+      --text:    #EEE9FF;
+      --muted:   #8B87A8;
+      --font:    'Plus Jakarta Sans', sans-serif;
+    }
+
+    *, *::before, *::after { margin:0; padding:0; box-sizing:border-box; }
+    html { scroll-behavior:smooth; }
+
+    body {
+      background: var(--bg);
+      color: var(--text);
+      font-family: var(--font);
+      line-height: 1.7;
+      overflow-x: hidden;
+    }
+
+    body::before {
+      content:''; position:fixed; inset:0; z-index:0; pointer-events:none;
+      background:
+        radial-gradient(ellipse 60% 40% at 10% 0%, rgba(124,92,252,0.13) 0%, transparent 70%),
+        radial-gradient(ellipse 50% 35% at 90% 100%, rgba(79,142,247,0.10) 0%, transparent 70%);
+    }
+
+    /* ── NAV ── */
+    nav {
+      position:fixed; top:0; left:0; right:0; z-index:200;
+      display:flex; align-items:center; justify-content:space-between;
+      padding:1rem 5vw;
+      background:rgba(9,9,15,0.82);
+      backdrop-filter:blur(18px);
+      border-bottom:1px solid var(--border);
+    }
+    .nav-logo {
+      font-size:1.2rem; font-weight:800; letter-spacing:-0.02em;
+      text-decoration:none; color:var(--text);
+    }
+    .nav-logo span {
+      background:var(--grad);
+      -webkit-background-clip:text; -webkit-text-fill-color:transparent;
+    }
+    .nav-links { display:flex; align-items:center; gap:2.2rem; list-style:none; }
+    .nav-links a {
+      text-decoration:none; color:var(--muted);
+      font-size:0.9rem; font-weight:500; transition:color .2s;
+    }
+    .nav-links a:hover { color:var(--text); }
+    .nav-cta {
+      background:var(--grad); color:#fff !important;
+      padding:.5rem 1.3rem; border-radius:8px;
+      font-weight:700 !important;
+      transition:opacity .2s, transform .2s;
+    }
+    .nav-cta:hover { opacity:.88; transform:translateY(-1px); }
+
+    /* Hamburger */
+    .hamburger {
+      display:none; flex-direction:column; gap:5px;
+      background:none; border:none; cursor:pointer; padding:4px;
+    }
+    .hamburger span {
+      display:block; width:24px; height:2px;
+      background:var(--text); border-radius:2px;
+      transition:transform .3s, opacity .3s;
+    }
+    .hamburger.open span:nth-child(1) { transform:translateY(7px) rotate(45deg); }
+    .hamburger.open span:nth-child(2) { opacity:0; }
+    .hamburger.open span:nth-child(3) { transform:translateY(-7px) rotate(-45deg); }
+
+    /* Mobile drawer */
+    .mobile-menu {
+      display:none; position:fixed;
+      inset:0; z-index:190;
+      background:rgba(9,9,15,0.97);
+      backdrop-filter:blur(20px);
+      flex-direction:column; align-items:center; justify-content:center; gap:2.5rem;
+    }
+    .mobile-menu.open { display:flex; }
+    .mobile-menu a {
+      text-decoration:none; color:var(--text);
+      font-size:1.6rem; font-weight:700; transition:color .2s;
+    }
+    .mobile-menu a:hover { color:var(--purple); }
+    .mobile-menu .m-cta {
+      background:var(--grad); color:#fff !important;
+      padding:.8rem 2.5rem; border-radius:10px; font-size:1.1rem !important;
+    }
+
+    @media (max-width:768px) {
+      .nav-links { display:none; }
+      .hamburger { display:flex; }
+    }
+
+    /* ── HERO ── */
+    .hero {
+      position:relative; z-index:1;
+      min-height:100vh; display:flex; align-items:center;
+      padding:9rem 5vw 6rem;
+    }
+    .hero-content { max-width:700px; }
+
+    .badge {
+      display:inline-flex; align-items:center; gap:.5rem;
+      background:rgba(124,92,252,0.1);
+      border:1px solid rgba(124,92,252,0.25);
+      color:#B09BFF; font-size:.75rem; font-weight:700;
+      letter-spacing:.1em; text-transform:uppercase;
+      padding:.35rem 1rem; border-radius:100px;
+      margin-bottom:1.75rem;
+      animation:fadeUp .5s ease both;
+    }
+    .badge-dot {
+      width:6px; height:6px; border-radius:50%;
+      background:var(--purple); animation:blink 2s infinite;
+    }
+    @keyframes blink { 0%,100%{opacity:1;} 50%{opacity:.25;} }
+
+    .hero h1 {
+      font-size:clamp(2.4rem, 5vw, 4.2rem);
+      font-weight:800; line-height:1.1; letter-spacing:-0.03em;
+      margin-bottom:1.2rem;
+      animation:fadeUp .5s .1s ease both;
+    }
+    .hero h1 .grad {
+      background:var(--grad);
+      -webkit-background-clip:text; -webkit-text-fill-color:transparent;
+    }
+    .hero-en {
+      font-size:1.05rem; color:var(--muted); max-width:520px;
+      margin-bottom:.4rem;
+      animation:fadeUp .5s .15s ease both;
+    }
+    .hero-id {
+      font-size:.93rem; color:var(--muted); opacity:.72; max-width:520px;
+      margin-bottom:2.25rem;
+      animation:fadeUp .5s .2s ease both;
+    }
+    .hero-btns {
+      display:flex; gap:1rem; flex-wrap:wrap;
+      animation:fadeUp .5s .25s ease both;
+    }
+    .btn-primary {
+      background:var(--grad); color:#fff;
+      padding:.85rem 2rem; border-radius:10px;
+      text-decoration:none; font-weight:700; font-size:.95rem;
+      box-shadow:0 4px 24px rgba(124,92,252,0.3);
+      transition:transform .2s, box-shadow .2s;
+    }
+    .btn-primary:hover { transform:translateY(-2px); box-shadow:0 8px 32px rgba(124,92,252,0.45); }
+    .btn-outline {
+      border:1px solid var(--border); color:var(--text);
+      padding:.85rem 2rem; border-radius:10px;
+      text-decoration:none; font-weight:600; font-size:.95rem;
+      transition:border-color .2s, background .2s;
+    }
+    .btn-outline:hover { border-color:rgba(124,92,252,.4); background:rgba(124,92,252,.06); }
+
+    .orb {
+      position:absolute; right:5vw; top:50%; transform:translateY(-50%);
+      width:clamp(260px,36vw,500px); aspect-ratio:1; border-radius:50%;
+      background:radial-gradient(circle, rgba(124,92,252,0.18) 0%, rgba(79,142,247,0.07) 50%, transparent 70%);
+      pointer-events:none; z-index:0;
+      animation:float 6s ease-in-out infinite;
+    }
+    @keyframes float { 0%,100%{transform:translateY(-50%) scale(1);} 50%{transform:translateY(-52%) scale(1.03);} }
+    @media(max-width:768px){ .orb{display:none;} }
+
+    @keyframes fadeUp {
+      from{opacity:0;transform:translateY(18px);}
+      to{opacity:1;transform:translateY(0);}
+    }
+
+    /* ── SHARED ── */
+    section { position:relative; z-index:1; padding:6rem 5vw; }
+    .sec-label {
+      font-size:.72rem; font-weight:700; letter-spacing:.12em;
+      text-transform:uppercase; color:var(--purple); margin-bottom:.6rem;
+    }
+    .sec-title {
+      font-size:clamp(1.8rem,3.2vw,2.6rem);
+      font-weight:800; letter-spacing:-0.03em; line-height:1.15; margin-bottom:.6rem;
+    }
+    .sec-sub   { color:var(--muted); font-size:1rem; max-width:500px; }
+    .sec-sub-id { color:var(--muted); font-size:.88rem; opacity:.75; max-width:500px; margin-top:.25rem; }
+    .sec-head  { margin-bottom:3rem; }
+
+    /* ── SERVICES ── */
+    .services { background:var(--surface); }
+    .grid-6 {
+      display:grid;
+      grid-template-columns:repeat(auto-fill, minmax(265px,1fr));
+      gap:1.25rem;
+    }
+    .card {
+      background:var(--card); border:1px solid var(--border);
+      border-radius:14px; padding:1.75rem;
+      transition:border-color .3s, transform .3s, box-shadow .3s;
+    }
+    .card:hover {
+      border-color:rgba(124,92,252,.35);
+      transform:translateY(-4px);
+      box-shadow:0 12px 36px rgba(124,92,252,.1);
+    }
+    .card-num {
+      font-size:.67rem; font-weight:700; letter-spacing:.1em;
+      text-transform:uppercase; color:var(--purple); opacity:.65; margin-bottom:1rem;
+    }
+    .card h3 { font-size:1.05rem; font-weight:700; margin-bottom:.45rem; }
+    .card-en { font-size:.875rem; color:var(--muted); margin-bottom:.3rem; }
+    .card-id { font-size:.82rem; color:var(--muted); opacity:.7; margin-bottom:1.1rem; }
+    .tags { display:flex; flex-wrap:wrap; gap:.35rem; }
+    .tag {
+      font-size:.7rem; font-weight:500; color:var(--muted);
+      background:rgba(124,92,252,.07); border:1px solid rgba(124,92,252,.15);
+      padding:.22rem .65rem; border-radius:100px;
+    }
+
+    /* Stats */
+    .stats {
+      display:grid; grid-template-columns:repeat(auto-fill, minmax(190px,1fr));
+      gap:1.25rem; margin-top:4rem;
+    }
+    .stat {
+      text-align:center; padding:2rem 1.5rem;
+      background:var(--card); border:1px solid var(--border); border-radius:14px;
+    }
+    .stat-num {
+      font-size:2.4rem; font-weight:800;
+      background:var(--grad); -webkit-background-clip:text; -webkit-text-fill-color:transparent;
+      margin-bottom:.35rem;
+    }
+    .stat-en { font-size:.85rem; color:var(--muted); }
+    .stat-id { font-size:.78rem; color:var(--muted); opacity:.7; }
+
+    /* ── CLIENTS ── */
+    .clients-wrap { overflow:hidden; position:relative; }
+    .clients-wrap::before,.clients-wrap::after {
+      content:''; position:absolute; top:0; bottom:0; width:100px; z-index:2; pointer-events:none;
+    }
+    .clients-wrap::before { left:0; background:linear-gradient(to right, var(--bg), transparent); }
+    .clients-wrap::after  { right:0; background:linear-gradient(to left, var(--bg), transparent); }
+    .clients-track {
+      display:flex; gap:1rem;
+      animation:marquee 26s linear infinite; width:max-content;
+    }
+    .clients-track:hover { animation-play-state:paused; }
+    @keyframes marquee { from{transform:translateX(0);} to{transform:translateX(-50%);} }
+    .client-pill {
+      display:flex; align-items:center; justify-content:center;
+      height:52px; min-width:158px; padding:0 1.4rem;
+      background:var(--card); border:1px solid var(--border); border-radius:10px;
+      font-size:.82rem; font-weight:600; color:var(--muted); white-space:nowrap;
+      transition:color .2s, border-color .2s;
+    }
+    .client-pill:hover { color:var(--text); border-color:rgba(124,92,252,.35); }
+
+    /* ── CTA ── */
+    .cta { background:var(--surface); }
+    .cta-inner {
+      max-width:600px; margin:0 auto; text-align:center;
+      padding:3.5rem 2rem;
+      background:linear-gradient(135deg,rgba(124,92,252,.07),rgba(79,142,247,.05));
+      border:1px solid var(--border); border-radius:20px;
+      position:relative; overflow:hidden;
+    }
+    .cta-inner::before {
+      content:''; position:absolute; top:-100px; left:50%; transform:translateX(-50%);
+      width:400px; height:200px;
+      background:radial-gradient(ellipse, rgba(124,92,252,.18), transparent 70%);
+      pointer-events:none;
+    }
+    .cta-inner h2 {
+      font-size:clamp(1.5rem,2.8vw,2.1rem);
+      font-weight:800; letter-spacing:-0.03em; margin-bottom:.7rem;
+    }
+    .cta-en { color:var(--muted); font-size:.95rem; margin-bottom:.3rem; }
+    .cta-id { color:var(--muted); font-size:.87rem; opacity:.75; margin-bottom:2rem; }
+    .cta-btns { display:flex; gap:1rem; justify-content:center; flex-wrap:wrap; }
+
+    /* ── FOOTER ── */
+    footer {
+      padding:2.5rem 5vw; border-top:1px solid var(--border);
+      display:flex; align-items:center; justify-content:space-between;
+      flex-wrap:wrap; gap:1.5rem; position:relative; z-index:1;
+    }
+    .footer-logo { font-size:1.1rem; font-weight:800; text-decoration:none; color:var(--text); }
+    .footer-logo span {
+      background:var(--grad); -webkit-background-clip:text; -webkit-text-fill-color:transparent;
+    }
+    .footer-links { display:flex; gap:2rem; list-style:none; flex-wrap:wrap; }
+    .footer-links a { font-size:.82rem; color:var(--muted); text-decoration:none; transition:color .2s; }
+    .footer-links a:hover { color:var(--text); }
+    .footer-copy { font-size:.78rem; color:var(--muted); }
+
+    @media(max-width:600px) {
+      footer { flex-direction:column; text-align:center; }
+      .footer-links { justify-content:center; }
+    }
+  </style>
+</head>
+<body>
+
+  <!-- NAV -->
+  <nav>
+    <a href="#" class="nav-logo">One<span>Station</span></a>
+    <ul class="nav-links">
+      <li><a href="#services">Services</a></li>
+      <li><a href="#clients">Clients</a></li>
+      <li><a href="#contact">Contact</a></li>
+      <li><a href="#contact" class="nav-cta">Free Consultation</a></li>
+    </ul>
+    <button class="hamburger" id="hamburger" aria-label="Toggle menu">
+      <span></span><span></span><span></span>
+    </button>
+  </nav>
+
+  <!-- MOBILE MENU -->
+  <div class="mobile-menu" id="mobileMenu">
+    <a href="#services">Services</a>
+    <a href="#clients">Clients</a>
+    <a href="#contact">Contact</a>
+    <a href="#contact" class="m-cta">Free Consultation</a>
+  </div>
+
+  <!-- HERO -->
+  <section class="hero">
+    <div class="orb"></div>
+    <div class="hero-content">
+      <div class="badge"><div class="badge-dot"></div>Custom ERP · Indonesia</div>
+      <h1>Custom ERP Systems<br/>that <span class="grad">Scale</span> with<br/>Your Business.</h1>
+      <p class="hero-en">We build enterprise resource planning software — from operations to the back office.</p>
+      <p class="hero-id">Kami membangun sistem ERP khusus untuk perusahaan yang ingin tumbuh lebih cepat dan efisien.</p>
+      <div class="hero-btns">
+        <a href="#contact" class="btn-primary">Konsultasi Gratis</a>
+        <a href="#services" class="btn-outline">Lihat Layanan →</a>
+      </div>
+    </div>
+  </section>
+
+  <!-- SERVICES -->
+  <section class="services" id="services">
+    <div class="sec-head">
+      <p class="sec-label">What We Build</p>
+      <h2 class="sec-title">Get the Best Ecosystem</h2>
+      <p class="sec-sub">Streamlining your operations through technology.</p>
+      <p class="sec-sub-id">Kami implementasi dan kustomisasi sistem yang jadi tulang punggung produktivitas bisnis kamu.</p>
+    </div>
+    <div class="grid-6">
+      <div class="card">
+        <div class="card-num">Module 01</div>
+        <h3>Core ERP Development</h3>
+        <p class="card-en">End-to-end orchestration for high-concurrency business operations.</p>
+        <p class="card-id">Sistem ERP lengkap untuk operasional bisnis yang kompleks dan skala besar.</p>
+        <div class="tags">
+          <span class="tag">Inventory</span><span class="tag">HR</span>
+          <span class="tag">Production</span><span class="tag">Multi-currency</span>
+        </div>
+      </div>
+      <div class="card">
+        <div class="card-num">Module 02</div>
+        <h3>Mobile Integration</h3>
+        <p class="card-en">Enterprise-grade native apps for field teams.</p>
+        <p class="card-id">Aplikasi mobile untuk tim lapangan — bekerja bahkan tanpa koneksi internet.</p>
+        <div class="tags">
+          <span class="tag">iOS & Android</span><span class="tag">Offline-first</span>
+          <span class="tag">Real-time Sync</span>
+        </div>
+      </div>
+      <div class="card">
+        <div class="card-num">Module 03</div>
+        <h3>AI & Automation</h3>
+        <p class="card-en">Predictive intelligence to support better business decisions.</p>
+        <p class="card-id">Otomasi cerdas berbasis AI untuk efisiensi operasional dan pengambilan keputusan.</p>
+        <div class="tags">
+          <span class="tag">Forecasting</span><span class="tag">NLP</span>
+          <span class="tag">OCR</span><span class="tag">Anomaly Detection</span>
+        </div>
+      </div>
+      <div class="card">
+        <div class="card-num">Module 04</div>
+        <h3>Ongoing Evolution</h3>
+        <p class="card-en">Continuous support as your system grows.</p>
+        <p class="card-id">Dukungan berkelanjutan agar sistem kamu selalu optimal seiring perkembangan bisnis.</p>
+        <div class="tags">
+          <span class="tag">Feature Additions</span><span class="tag">Support</span><span class="tag">Training</span>
+        </div>
+      </div>
+      <div class="card">
+        <div class="card-num">Service</div>
+        <h3>Website Development</h3>
+        <p class="card-en">Company profiles, landing pages, and e-commerce.</p>
+        <p class="card-id">Website profesional untuk company profile, toko online, dan landing page bisnis kamu.</p>
+        <div class="tags">
+          <span class="tag">Company Profile</span><span class="tag">E-Commerce</span><span class="tag">Landing Page</span>
+        </div>
+      </div>
+      <div class="card">
+        <div class="card-num">Service</div>
+        <h3>Chatbot & AI Agent</h3>
+        <p class="card-en">Intelligent automation for customer & internal workflows.</p>
+        <p class="card-id">Chatbot pintar untuk layanan pelanggan dan otomasi proses internal perusahaan.</p>
+        <div class="tags">
+          <span class="tag">WhatsApp Bot</span><span class="tag">AI Agent</span><span class="tag">Workflow Auto</span>
+        </div>
+      </div>
+    </div>
+    <div class="stats">
+      <div class="stat">
+        <div class="stat-num">50+</div>
+        <div class="stat-en">Projects Delivered</div>
+        <div class="stat-id">Proyek yang telah selesai</div>
+      </div>
+      <div class="stat">
+        <div class="stat-num">11+</div>
+        <div class="stat-en">Enterprise Clients</div>
+        <div class="stat-id">Klien korporat & institusi</div>
+      </div>
+      <div class="stat">
+        <div class="stat-num">5+</div>
+        <div class="stat-en">Years Experience</div>
+        <div class="stat-id">Tahun pengalaman industri</div>
+      </div>
+      <div class="stat">
+        <div class="stat-num">24/7</div>
+        <div class="stat-en">Technical Support</div>
+        <div class="stat-id">Dukungan teknis kapanpun</div>
+      </div>
+    </div>
+  </section>
+
+  <!-- CLIENTS -->
+  <section id="clients">
+    <div class="sec-head">
+      <p class="sec-label">Trusted By</p>
+      <h2 class="sec-title">Our Clients</h2>
+      <p class="sec-sub">From multinationals to state-owned enterprises and private businesses.</p>
+      <p class="sec-sub-id">Dari perusahaan multinasional, BUMN, hingga bisnis swasta — One Station tumbuh bersama kliennya.</p>
+    </div>
+    <div class="clients-wrap">
+      <div class="clients-track">
+        <div class="client-pill">BRI</div>
+        <div class="client-pill">Prudential Indonesia</div>
+        <div class="client-pill">Mitratel</div>
+        <div class="client-pill">KOMINFO</div>
+        <div class="client-pill">Telkom University</div>
+        <div class="client-pill">Universitas Brawijaya</div>
+        <div class="client-pill">ITS Surabaya</div>
+        <div class="client-pill">Atma Jaya Yogyakarta</div>
+        <div class="client-pill">Bumi Global Karbon</div>
+        <div class="client-pill">Vision Glasses</div>
+        <div class="client-pill">Al-Ghifari University</div>
+        <div class="client-pill">BRI</div>
+        <div class="client-pill">Prudential Indonesia</div>
+        <div class="client-pill">Mitratel</div>
+        <div class="client-pill">KOMINFO</div>
+        <div class="client-pill">Telkom University</div>
+        <div class="client-pill">Universitas Brawijaya</div>
+        <div class="client-pill">ITS Surabaya</div>
+        <div class="client-pill">Atma Jaya Yogyakarta</div>
+        <div class="client-pill">Bumi Global Karbon</div>
+        <div class="client-pill">Vision Glasses</div>
+        <div class="client-pill">Al-Ghifari University</div>
+      </div>
+    </div>
+  </section>
+
+  <!-- CTA -->
+  <section class="cta" id="contact">
+    <div class="cta-inner">
+      <h2>Ready to Build an ERP That Actually Fits?</h2>
+      <p class="cta-en">Schedule a free 30-minute strategy call to discuss your operations.</p>
+      <p class="cta-id">Jadwalkan sesi konsultasi gratis 30 menit dan temukan solusi ERP yang tepat untuk bisnis kamu.</p>
+      <div class="cta-btns">
+        <a href="https://onest.id/contact" class="btn-primary" target="_blank">Jadwalkan Konsultasi</a>
+        <a href="https://docs.google.com/document/d/18Sgb6f9v5fgUbDKlW5BHMPj2rRin7ltP4Cf7poGX-rc/edit" class="btn-outline" target="_blank">Download ERP Guide</a>
+      </div>
+    </div>
+  </section>
+
+  <!-- FOOTER -->
+  <footer>
+    <a href="#" class="footer-logo">One<span>Station</span></a>
+    <ul class="footer-links">
+      <li><a href="https://onest.id/erp-solution">ERP Solution</a></li>
+      <li><a href="https://onest.id/service">Services</a></li>
+      <li><a href="https://onest.id/projects">Projects</a></li>
+      <li><a href="https://onest.id/articles">Articles</a></li>
+      <li><a href="https://onest.id/contact">Contact</a></li>
+    </ul>
+    <p class="footer-copy">© 2026 One Station. All rights reserved.</p>
+  </footer>
+
+  <script>
+    const hamburger = document.getElementById('hamburger');
+    const mobileMenu = document.getElementById('mobileMenu');
+    hamburger.addEventListener('click', () => {
+      hamburger.classList.toggle('open');
+      mobileMenu.classList.toggle('open');
+      document.body.style.overflow = mobileMenu.classList.contains('open') ? 'hidden' : '';
+    });
+    document.querySelectorAll('.mobile-menu a').forEach(link => {
+      link.addEventListener('click', () => {
+        hamburger.classList.remove('open');
+        mobileMenu.classList.remove('open');
+        document.body.style.overflow = '';
+      });
+    });
+  </script>
+</body>
+</html>
